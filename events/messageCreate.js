@@ -13,6 +13,12 @@ module.exports = {
         const userId = message.author.id;
         const guildId = message.guild?.id;
 
+        // Check for prefix commands first
+        if (message.content.startsWith(config.prefix)) {
+            await handlePrefixCommand(message);
+            return;
+        }
+
         // Ensure user exists in database
         UserSchema.createUser(userId, message.author.username);
 
@@ -151,5 +157,84 @@ async function checkAutoReacts(message) {
         }
     } catch (error) {
         console.error('Error checking auto reacts:', error);
+    }
+}
+
+async function handlePrefixCommand(message) {
+    const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
+    // Get the command from the client
+    const command = message.client.commands.get(commandName);
+    
+    if (!command) return;
+
+    try {
+        // Create a fake interaction object that mimics slash command interaction
+        const fakeInteraction = {
+            user: message.author,
+            member: message.member,
+            guild: message.guild,
+            channel: message.channel,
+            reply: async (options) => {
+                if (typeof options === 'string') {
+                    return message.channel.send(options);
+                }
+                return message.channel.send(options);
+            },
+            editReply: async (options) => {
+                // For prefix commands, just send a new message
+                if (typeof options === 'string') {
+                    return message.channel.send(options);
+                }
+                return message.channel.send(options);
+            },
+            followUp: async (options) => {
+                if (typeof options === 'string') {
+                    return message.channel.send(options);
+                }
+                return message.channel.send(options);
+            },
+            deferReply: async () => {
+                // For prefix commands, we don't need to defer
+                return Promise.resolve();
+            },
+            options: {
+                getString: (name) => args[0] || null,
+                getUser: (name) => {
+                    const userMention = args.find(arg => arg.startsWith('<@') && arg.endsWith('>'));
+                    if (userMention) {
+                        const userId = userMention.slice(2, -1).replace('!', '');
+                        return message.guild.members.cache.get(userId)?.user || null;
+                    }
+                    return null;
+                },
+                getInteger: (name) => {
+                    const num = parseInt(args[0]);
+                    return isNaN(num) ? null : num;
+                },
+                getSubcommand: () => args[0] || null,
+                getSubcommandGroup: () => null
+            },
+            isCommand: () => true,
+            commandName: commandName
+        };
+
+        // Ensure user exists in database for commands that need it
+        UserSchema.createUser(message.author.id, message.author.username);
+
+        // Execute the command
+        await command.execute(fakeInteraction);
+
+    } catch (error) {
+        console.error(`Error executing prefix command ${commandName}:`, error);
+        
+        const embed = createEmbed(
+            'Command Error',
+            'There was an error executing that command!',
+            'error'
+        );
+        
+        message.channel.send({ embeds: [embed] });
     }
 }
