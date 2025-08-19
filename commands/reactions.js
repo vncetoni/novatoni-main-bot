@@ -146,17 +146,22 @@ module.exports = {
                 wave: `${interaction.user} waves at ${targetUser}! 👋`
             };
 
-            const embed = createEmbed(
-                actionMessages[reactionType],
-                ``,
-                'primary'
-            );
-
-            embed.setImage(gifUrl);
-            embed.setFooter({ 
-                text: `${targetUser.username} has been ${reactionType}ed ${totalCount} times`,
-                iconURL: targetUser.displayAvatarURL({ dynamic: true })
-            });
+            // Create embed directly with proper structure
+            const { EmbedBuilder } = require('discord.js');
+            const embed = new EmbedBuilder()
+                .setTitle(`${reactionType.charAt(0).toUpperCase() + reactionType.slice(1)} ✨`)
+                .setDescription(actionMessages[reactionType])
+                .setImage(gifUrl)
+                .setColor(Math.floor(Math.random() * 16777215)) // Random color
+                .setAuthor({
+                    name: interaction.user.displayName,
+                    iconURL: interaction.user.displayAvatarURL({ dynamic: true })
+                })
+                .setFooter({ 
+                    text: `${targetUser.username} has been ${reactionType}ed ${totalCount} times`,
+                    iconURL: targetUser.displayAvatarURL({ dynamic: true })
+                })
+                .setTimestamp();
 
             // Create interaction buttons for sweet reactions
             const sweetReactions = ['hug', 'kiss', 'cuddle'];
@@ -187,11 +192,20 @@ module.exports = {
             console.error('Error handling reaction:', error);
             
             // Fallback without GIF
-            const embed = createEmbed(
-                'Reaction Error',
-                'Failed to load reaction GIF, but the gesture was appreciated! ❤️',
-                'error'
-            );
+            const { EmbedBuilder } = require('discord.js');
+            const embed = new EmbedBuilder()
+                .setTitle(`${reactionType.charAt(0).toUpperCase() + reactionType.slice(1)} ✨`)
+                .setDescription(actionMessages[reactionType] + '\n\n*GIF failed to load, but the gesture was appreciated!* ❤️')
+                .setColor(0xFF6B6B) // Soft red color
+                .setAuthor({
+                    name: interaction.user.displayName,
+                    iconURL: interaction.user.displayAvatarURL({ dynamic: true })
+                })
+                .setFooter({ 
+                    text: `${targetUser.username} has been ${reactionType}ed ${totalCount} times`,
+                    iconURL: targetUser.displayAvatarURL({ dynamic: true })
+                })
+                .setTimestamp();
 
             await interaction.editReply({ embeds: [embed] });
         }
