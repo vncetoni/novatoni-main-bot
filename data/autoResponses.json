@@ -1,0 +1,77 @@
+[
+    {
+        "trigger": "hello",
+        "response": "Hello there! Welcome to the server! 👋",
+        "chance": 0.3
+    },
+    {
+        "trigger": "bye",
+        "response": "Goodbye! Hope to see you again soon! 👋",
+        "chance": 0.3
+    },
+    {
+        "trigger": "thanks",
+        "response": "You're welcome! Happy to help! 😊",
+        "chance": 0.2
+    },
+    {
+        "trigger": "good morning",
+        "response": "Good morning! Have a great day! ☀️",
+        "chance": 0.4
+    },
+    {
+        "trigger": "good night",
+        "response": "Good night! Sweet dreams! 🌙",
+        "chance": 0.4
+    },
+    {
+        "trigger": "how are you",
+        "response": "I'm doing great! Thanks for asking! How about you? 😄",
+        "chance": 0.5
+    },
+    {
+        "trigger": "what's up",
+        "response": "Not much, just hanging out in the server! What about you? 😎",
+        "chance": 0.3
+    },
+    {
+        "trigger": "lol",
+        "response": "😂",
+        "chance": 0.1
+    },
+    {
+        "trigger": "lmao",
+        "response": "🤣",
+        "chance": 0.1
+    },
+    {
+        "trigger": "oof",
+        "response": "Big oof! 😬",
+        "chance": 0.2
+    },
+    {
+        "trigger": "rip",
+        "response": "F in the chat 😔",
+        "chance": 0.2
+    },
+    {
+        "trigger": "congrats",
+        "response": "Congratulations! 🎉",
+        "chance": 0.6
+    },
+    {
+        "trigger": "happy birthday",
+        "response": "Happy Birthday! 🎂🎉",
+        "chance": 0.8
+    },
+    {
+        "trigger": "nova",
+        "response": "You called? I'm Nova, your friendly bot! ✨",
+        "chance": 0.7
+    },
+    {
+        "trigger": "help",
+        "response": "Need help? Try using slash commands or ask the mods! 🆘",
+        "chance": 0.4
+    }
+]
