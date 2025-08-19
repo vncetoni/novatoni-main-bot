@@ -164,6 +164,13 @@ async function handlePrefixCommand(message) {
     const args = message.content.slice(config.prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
+    // Handle direct reaction commands
+    const reactionTypes = ['hug', 'kiss', 'cuddle', 'pat', 'poke', 'slap', 'bite', 'yeet', 'bonk', 'wave'];
+    if (reactionTypes.includes(commandName)) {
+        await handleDirectReaction(message, commandName, args);
+        return;
+    }
+
     // Get the command from the client
     const command = message.client.commands.get(commandName);
     
@@ -232,6 +239,81 @@ async function handlePrefixCommand(message) {
         const embed = createEmbed(
             'Command Error',
             'There was an error executing that command!',
+            'error'
+        );
+        
+        message.channel.send({ embeds: [embed] });
+    }
+}
+
+async function handleDirectReaction(message, reactionType, args) {
+    try {
+        // Parse user mention from args
+        let targetUser = null;
+        
+        if (args.length > 0) {
+            const userMention = args[0];
+            if (userMention.startsWith('<@') && userMention.endsWith('>')) {
+                const userId = userMention.slice(2, -1).replace('!', '');
+                targetUser = message.guild.members.cache.get(userId)?.user;
+            }
+        }
+
+        if (!targetUser) {
+            const embed = createEmbed(
+                'Missing User',
+                `Please mention a user to ${reactionType}! Example: \`.${reactionType} @someone\``,
+                'error'
+            );
+            return message.channel.send({ embeds: [embed] });
+        }
+
+        // Check if user is trying to react to themselves
+        if (message.author.id === targetUser.id) {
+            const selfActions = {
+                hug: 'You hug yourself... are you okay?',
+                kiss: 'You kiss yourself in the mirror... narcissist much?',
+                cuddle: 'You cuddle with your pillow...',
+                pat: 'You pat yourself on the back!',
+                poke: 'You poke yourself... weird...',
+                slap: 'You slap yourself... that must hurt!',
+                bite: 'You bite yourself... ouch!',
+                yeet: 'You yeet yourself into the void!',
+                bonk: 'You bonk yourself... confusion!',
+                wave: 'You wave at your reflection!'
+            };
+
+            const embed = createEmbed('Self Action', selfActions[reactionType], 'warning');
+            return message.channel.send({ embeds: [embed] });
+        }
+
+        // Create fake interaction object
+        const fakeInteraction = {
+            user: message.author,
+            member: message.member,
+            guild: message.guild,
+            channel: message.channel,
+            deferReply: async () => Promise.resolve(),
+            editReply: async (options) => {
+                if (typeof options === 'string') {
+                    return message.channel.send(options);
+                }
+                return message.channel.send(options);
+            }
+        };
+
+        // Get the reaction command and call its handleReaction method
+        const reactionCommand = message.client.commands.get('reaction');
+        if (reactionCommand && reactionCommand.handleReaction) {
+            await reactionCommand.handleReaction(fakeInteraction, reactionType, targetUser);
+        }
+
+    } catch (error) {
+        console.error(`Error handling direct reaction ${reactionType}:`, error);
+        
+        const embed = createEmbed(
+            'Reaction Error',
+            'There was an error with that reaction!',
             'error'
         );
         
