@@ -1,7 +1,7 @@
 module.exports = {
     token: process.env.DISCORD_TOKEN,
     clientId: process.env.CLIENT_ID,
-    prefix: '!',
+    prefix: '.',
     currency: {
         name: 'NOVACOIN',
         emoji: '🪙', // Placeholder - will be replaced with custom emoji
